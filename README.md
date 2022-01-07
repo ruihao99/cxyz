@@ -14,7 +14,7 @@ pip install -e .
 ## Example
 
 demo:
-```
+```python
 import numpy as np
 from cxyz import XYZReader
 
