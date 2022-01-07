@@ -1,0 +1,36 @@
+# Ignore python bytecoded files
+*.py[cod]
+*.[oa]
+*~
+*.bak
+*.so
+*.cpp
+*.egg-info
+*.egg
+*.profraw
+# Ignore build dir
+build/
+dist/
+temp/
+.project
+.pydevproject
+.settings
+# ignore Vagrant virtual machines
+.vagrant
+# Ignore html build
+package/doc/html/
+# Ignore the .DS_Store file in the osx file system
+*.DS_Store
+# ignore files from tests
+.hypothesis/
+# ignore results from asv
+benchmarks/results
+
+# duecredit
+.duecredit.p
+
+# editors and IDEs
+*.sw[a-z]
+*~
+.idea
+.vscode
