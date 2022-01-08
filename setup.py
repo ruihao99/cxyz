@@ -14,7 +14,8 @@ setup(
 
     ext_modules = cythonize([Extension("cxyz", ["cxyz.pyx"], 
             include_dirs=[numpy.get_include(), "./include"],
-            language="c++"
+            language="c++",
+            extra_compile_args=['-std=c++11',]
             )]),
 
     classifiers=[
