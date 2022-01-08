@@ -4,6 +4,7 @@
 #include <sstream>
 #include <string>
 #include <float.h>
+#include <math.h>
 using namespace std;
 
 typedef float coordinate[3];
@@ -28,23 +29,20 @@ int get_n_atoms (ifstream & f_xyz){
 // use c-loop get file position stream 
 int get_pos (ifstream & f_xyz, unsigned long long * ppos){
     int n = 0;
-    int m = 0;
+    long m = 0;
     int na = 1;
-    char buf[200]={0};
+    string line;
     //string line;
     unsigned long long cur;
 
     cur = f_xyz.tellg();
     f_xyz.seekg(0, ios::beg);
-
-    na = get_n_atoms(f_xyz);
     ppos[n] = f_xyz.tellg();
+    na = get_n_atoms(f_xyz);
 
-    //while ( getline (f_xyz, line) ){
-    while ( f_xyz.getline(buf, sizeof(buf)) ){
+    while ( getline (f_xyz, line) ){
         m++;
-        if (m == na+2){
-            m = 0;
+        if (fmod(m, (na+2)) == 0){ 
             n++;
             ppos[n] = f_xyz.tellg();
         }
