@@ -13,6 +13,7 @@ cdef extern from "cxyz.h":
 
 cdef class XYZReader(object):
     cdef public string xyz_fdir
+    cdef public char * cxyz_fdir
     cdef public int n_atoms
     cdef public int n_frames 
     cdef public numpy.ndarray f_pos
@@ -23,7 +24,9 @@ cdef class XYZReader(object):
     def __init__(self, xyz_fdir, n_atoms=None, n_frames=None, f_pos=None):
 
         self.xyz_fdir = <string> xyz_fdir.encode('utf-8')
-
+        py_byte_string = xyz_fdir.encode('utf-8')
+        cdef char* cxyz_fdir = py_byte_string 
+        self.cxyz_fdir = cxyz_fdir
         if f_pos is not None:
             if type(f_pos) is numpy.ndarray:
                 self.f_pos = f_pos
@@ -44,11 +47,11 @@ cdef class XYZReader(object):
                 self.n_frames = n_atoms
 
     @staticmethod
-    def get_fpos(string f, numpy.ndarray pos):
+    def get_fpos(char * f, numpy.ndarray pos):
         cdef int n_atoms, n_frames
         # convert python str to str
         n_atoms, n_frames = 0, 0
-        _get_fpos(f , <unsigned long long*> pos.data, 
+        _get_fpos(f, <unsigned long long*> pos.data, 
                 n_atoms, n_frames)
         return n_atoms, n_frames
     
@@ -58,7 +61,7 @@ cdef class XYZReader(object):
         _get_coords(f, pos, <coordinate*> coords.data, n_atoms)
     
     def run_get_fpos(self):
-        self.n_atoms, self.n_frames = self.get_fpos(self.xyz_fdir,
+        self.n_atoms, self.n_frames = self.get_fpos(self.cxyz_fdir,
                                                     self.f_pos)
         self.f_pos = self.f_pos[:self.n_frames]
         self.coords = numpy.zeros((self.n_atoms, 3), dtype=numpy.float32)

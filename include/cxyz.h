@@ -1,4 +1,8 @@
 // parsing xyzfiles
+#include <stdio.h>
+#include <stdlib.h>
+#define _FILE_OFFSET_BITS 64
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -10,23 +14,9 @@ using namespace std;
 typedef float coordinate[3];
 typedef char element[2];
 
-// from file stream to n_atom
-int get_n_atoms (ifstream & f_xyz){
-    int n_atoms;
-    string line;
-    unsigned long long cur;
-
-    cur = f_xyz.tellg();
-    f_xyz.seekg(0, ios::beg);
-
-    getline (f_xyz, line);
-    stringstream(line) >> n_atoms;
-
-    f_xyz.seekg(cur, ios::beg);
-    return n_atoms;
-}
-
 // use c-loop get file position stream 
+// below is the c++ getline version, bad!!
+/*
 int get_pos (ifstream & f_xyz, unsigned long long * ppos){
     int n = 0;
     long m = 0;
@@ -51,6 +41,29 @@ int get_pos (ifstream & f_xyz, unsigned long long * ppos){
     f_xyz.seekg(cur, ios::beg);
     return n;
 }
+*/
+// this is the c-stdio version 
+// could be improved using a larger buffer?
+static void _get_fpos( const char * file , unsigned long long * pos, int & n_atoms, int & n_frames){
+    FILE *fxyz;
+    int n=0;
+    char line [256];
+    //open file
+    fxyz = fopen(file, "r");
+    fscanf(fxyz, "%d", &n_atoms);
+    rewind(fxyz);
+    int nd = n_atoms+2;
+    n_frames=0;
+
+    while (!feof(fxyz)){
+        pos[n_frames] = ftell(fxyz);
+        for (n=0; n<nd; n++)
+            fgets(line, 256, fxyz);
+        n_frames++;
+    }
+    fclose(fxyz);
+    n_frames -= 1;
+}
 
 static void _get_coords (string file, const unsigned long long & pos, coordinate * coords,  int & n_atoms){
     int i=0;
@@ -70,9 +83,3 @@ static void _get_coords (string file, const unsigned long long & pos, coordinate
     f_xyz.close();
 }
 
-static void _get_fpos( string file , unsigned long long * pos, int & n_atoms, int & n_frames){
-    ifstream f_xyz(file);
-    n_atoms = get_n_atoms(f_xyz);
-    n_frames = get_pos(f_xyz, pos);
-    f_xyz.close();
-}
